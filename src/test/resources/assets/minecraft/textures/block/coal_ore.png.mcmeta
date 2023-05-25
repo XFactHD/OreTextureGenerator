@@ -1,0 +1,9 @@
+{
+    "forge": {
+        "loader": "oretexgen:loader"
+    },
+    "oretexgen": {
+        "background": "minecraft:block/stone",
+        "auto_shadow": true
+    }
+}

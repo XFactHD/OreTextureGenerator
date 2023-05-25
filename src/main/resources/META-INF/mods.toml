@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[45,)"
+license="LGPL v3"
+issueTrackerURL="https://github.com/XFactHD/OreTexGen/"
+
+[[mods]]
+	modId="oretexgen"
+	version="${file.jarVersion}"
+	displayName="OreTexGen"
+	#displayURL="https://www.curseforge.com/minecraft/mc-mods/oretexgen"
+	logoFile="logo.png"
+	authors="Love, Cheese and small house plants"
+	displayTest="IGNORE_ALL_VERSION"
+	description='''
+	'''
+
+[[dependencies.oretexgen]]
+    modId="forge"
+    mandatory=true
+    versionRange="[45,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.oretexgen]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.19.4,1.20)"
+    ordering="NONE"
+    side="BOTH"
