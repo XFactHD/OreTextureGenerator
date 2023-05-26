@@ -4,6 +4,6 @@
     },
     "oretexgen": {
         "background": "minecraft:block/blackstone",
-        "auto_shadow": true
+        "shadow": true
     }
 }

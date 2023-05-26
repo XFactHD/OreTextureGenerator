@@ -9,11 +9,10 @@ import net.minecraft.client.resources.metadata.animation.AnimationMetadataSectio
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.util.FastColor;
 import net.minecraftforge.client.textures.ForgeTextureMetadata;
 import net.minecraftforge.client.textures.ITextureAtlasSpriteLoader;
+import org.jetbrains.annotations.Nullable;
 import xfacthd.oretexgen.OreTextureGenerator;
-import xfacthd.oretexgen.client.util.FrameInfo;
 import xfacthd.oretexgen.client.util.ShadowGenerator;
 import xfacthd.oretexgen.client.util.Utils;
 
@@ -94,11 +93,11 @@ public final class OreTextureLoader implements ITextureAtlasSpriteLoader
         background = Utils.scaleImage(background, bgScale);
         image = Utils.scaleImage(image, fgScale);
 
-        return buildCombinedTexture(name, resultSize, image, background, meta.shouldGenerateShadow(), animation, forgeMeta);
+        return buildCombinedTexture(name, resultSize, image, background, meta.getShadowMetadata(), animation, forgeMeta);
     }
 
     private static SpriteContents buildCombinedTexture(
-            ResourceLocation name, FrameSize resultSize, NativeImage image, NativeImage background, boolean genShadow, AnimationMetadataSection animation, ForgeTextureMetadata forgeMeta
+            ResourceLocation name, FrameSize resultSize, NativeImage image, NativeImage background, @Nullable OreMetadata.ShadowMetadata shadowMetadata, AnimationMetadataSection animation, ForgeTextureMetadata forgeMeta
     )
     {
         NativeImage resultImage = new NativeImage(image.format(), image.getWidth(), image.getHeight(), false);
@@ -109,9 +108,9 @@ public final class OreTextureLoader implements ITextureAtlasSpriteLoader
 
             background.copyRect(resultImage, 0, 0, fx, fy, resultSize.width(), resultSize.height(), false, false);
 
-            if (genShadow)
+            if (shadowMetadata != null)
             {
-                ShadowGenerator.generateShadow(resultImage, image, background, frame, resultSize);
+                ShadowGenerator.generateShadow(resultImage, image, background, frame, resultSize, shadowMetadata);
             }
 
             Utils.copyRect(image, resultImage, fx, fy, fx, fy, resultSize.width(), resultSize.height());

@@ -3,6 +3,7 @@ package xfacthd.oretexgen.client.util;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.util.FastColor;
+import xfacthd.oretexgen.client.loader.OreMetadata;
 
 import java.util.*;
 
@@ -26,9 +27,9 @@ public class ShadowGenerator
         return FastColor.ARGB32.alpha(image.getPixelRGBA(px, py)) >= 128;
     }
 
-    public static void generateShadow(NativeImage outputImage, NativeImage foreground, NativeImage background, FrameInfo frame, FrameSize size)
+    public static void generateShadow(NativeImage outputImage, NativeImage foreground, NativeImage background, FrameInfo frame, FrameSize size, OreMetadata.ShadowMetadata shadowMetadata)
     {
-        Palette palette = new Palette(background);
+        Palette palette = new Palette(background, shadowMetadata.paletteExpansion());
 
         int w = size.width();
         int h = size.height();
@@ -68,12 +69,12 @@ public class ShadowGenerator
                 {
                     int oldColor = background.getPixelRGBA(px, py);
                     int index = palette.getIndex(oldColor);
-                    index = (index + palette.average) / 2;
+                    index = (int) ((index + palette.average * shadowMetadata.uniformity()) / (1 + shadowMetadata.uniformity()));
 
                     if (high)
-                        index += 72;
+                        index += shadowMetadata.highlightStrength();
                     else
-                        index -= 72;
+                        index -= shadowMetadata.shadowStrength();
 
                     int newColor = palette.getColor(index) | (oldColor & 0xFF000000);
                     outputImage.setPixelRGBA(px, py, newColor);
@@ -87,7 +88,7 @@ public class ShadowGenerator
         private final List<Integer> colors;
         public final int average;
 
-        public Palette(NativeImage image)
+        public Palette(NativeImage image, int paletteExpansion)
         {
             Set<Integer> colors = new HashSet<>();
             for (int y = 0; y < image.getHeight(); y++)
@@ -107,7 +108,7 @@ public class ShadowGenerator
 
             // Expand the palette if it is two narrow (looking at you, stone)
             int paletteSize = value(this.colors.get(this.colors.size()-1)) - value(this.colors.get(0));
-            if (paletteSize < 125)
+            if (paletteSize < paletteExpansion)
             {
                 int count = 0;
                 int cap = 2 * this.colors.size() / 5;
@@ -153,6 +154,9 @@ public class ShadowGenerator
 
         }
 
+        /**
+         * Takes a 0-255 index and returns the corresponding ARGB32 palette color.
+         */
         public int getColor(int index)
         {
             if (index < 0)
@@ -163,6 +167,10 @@ public class ShadowGenerator
             return colors.get(index);
         }
 
+        /**
+         * Takes an ARGB32 palette color and returns the corresponding 0-255 index, or 0 if the color is not in the
+         * palette.
+         */
         public int getIndex(int color)
         {
             color = color & 0x00FFFFFF;
@@ -178,10 +186,5 @@ public class ShadowGenerator
     private static int value(int color)
     {
         return (color & 0xFF) + (color >> 8 & 0xFF) + (color >> 16 & 0xFF);
-    }
-
-    private static int greyscale(int value)
-    {
-        return value | (value << 8) | (value << 16);
     }
 }
