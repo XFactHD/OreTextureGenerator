@@ -38,6 +38,8 @@ public final class OreMetadata
         return shadowMetadata;
     }
 
+
+
     public static OreMetadata fromResource(Resource resource) throws IOException
     {
         return resource.metadata().getSection(SERIALIZER).orElse(DEFAULT);
@@ -101,7 +103,8 @@ public final class OreMetadata
                 if (shadowElement.isJsonObject())
                 {
                     shadow = ShadowMetadata.fromJson(shadowElement.getAsJsonObject());
-                } else if (shadowElement.getAsBoolean())
+                }
+                else if (shadowElement.getAsBoolean())
                 {
                     shadow = ShadowMetadata.fromJson(new JsonObject());
                 }

@@ -117,7 +117,9 @@ public class ShadowGenerator
                     count += 1;
                     // Increase the size by at most 2/5
                     if (count > cap)
+                    {
                         break;
+                    }
 
                     int oldColor = this.colors.get(below ? 0 : this.colors.size()-1);
                     int r = FastColor.ARGB32.red(oldColor);
@@ -125,9 +127,13 @@ public class ShadowGenerator
                     int b = FastColor.ARGB32.blue(oldColor);
                     int sw = value(oldColor) / 3;
                     if (below)
+                    {
                         sw -= paletteSize / (3 * 2 * cap);
+                    }
                     else
+                    {
                         sw += paletteSize / (3 * 2 * cap);
+                    }
                     sw = Math.min(255, Math.max(0, sw));
 
                     r = (r*2 + sw) / 3;
@@ -140,7 +146,8 @@ public class ShadowGenerator
                     {
                         this.colors.add(0, newColor);
                         averageF += 1;
-                    } else
+                    }
+                    else
                     {
                         this.colors.add(newColor);
                     }
@@ -160,9 +167,13 @@ public class ShadowGenerator
         public int getColor(int index)
         {
             if (index < 0)
+            {
                 return colors.get(0);
+            }
             else if (index > 255)
+            {
                 return colors.get(colors.size()-1);
+            }
             index = index * colors.size() / 255;
             return colors.get(index);
         }
@@ -177,7 +188,9 @@ public class ShadowGenerator
 
             int index = colors.indexOf(color);
             if (index == -1)
+            {
                 index = 0;
+            }
 
             return index * 255 / colors.size();
         }
