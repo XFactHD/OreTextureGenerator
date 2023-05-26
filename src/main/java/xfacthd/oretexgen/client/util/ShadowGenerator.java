@@ -72,9 +72,13 @@ public class ShadowGenerator
                     index = (int) ((index + palette.average * shadowMetadata.uniformity()) / (1 + shadowMetadata.uniformity()));
 
                     if (high)
+                    {
                         index += shadowMetadata.highlightStrength();
+                    }
                     else
+                    {
                         index -= shadowMetadata.shadowStrength();
+                    }
 
                     int newColor = palette.getColor(index) | (oldColor & 0xFF000000);
                     outputImage.setPixelRGBA(px, py, newColor);
@@ -113,7 +117,8 @@ public class ShadowGenerator
                 int count = 0;
                 int cap = 2 * this.colors.size() / 5;
                 boolean below = true;
-                while (paletteSize < 150) {
+                while (paletteSize < 150)
+                {
                     count += 1;
                     // Increase the size by at most 2/5
                     if (count > cap)
