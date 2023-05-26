@@ -13,7 +13,7 @@ import java.io.IOException;
 public final class OreMetadata
 {
     private static final String DEFAULT_BACKGROUND = "minecraft:block/stone";
-    private static final OreMetadata DEFAULT = new OreMetadata(DEFAULT_BACKGROUND, ShadowMetadata.fromJson(new JsonObject()));
+    private static final OreMetadata DEFAULT = new OreMetadata(DEFAULT_BACKGROUND, null);
     private static final Serializer SERIALIZER = new Serializer();
 
     private final ResourceLocation background;
