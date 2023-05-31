@@ -13,7 +13,7 @@ import net.minecraftforge.client.textures.ForgeTextureMetadata;
 import net.minecraftforge.client.textures.ITextureAtlasSpriteLoader;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.oretexgen.OreTextureGenerator;
-import xfacthd.oretexgen.client.util.ShadowGenerator;
+import xfacthd.oretexgen.client.shadow.ShadowGenerator;
 import xfacthd.oretexgen.client.util.Utils;
 
 import java.io.IOException;
