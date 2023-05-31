@@ -3,7 +3,7 @@
         "loader": "oretexgen:loader"
     },
     "oretexgen": {
-        "background": "minecraft:block/stone",
+        "background": "minecraft:block/blackstone",
         "shadow": true
     }
 }

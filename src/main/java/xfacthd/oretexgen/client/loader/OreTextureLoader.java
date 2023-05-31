@@ -9,11 +9,11 @@ import net.minecraft.client.resources.metadata.animation.AnimationMetadataSectio
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.util.FastColor;
 import net.minecraftforge.client.textures.ForgeTextureMetadata;
 import net.minecraftforge.client.textures.ITextureAtlasSpriteLoader;
+import org.jetbrains.annotations.Nullable;
 import xfacthd.oretexgen.OreTextureGenerator;
-import xfacthd.oretexgen.client.util.FrameInfo;
+import xfacthd.oretexgen.client.util.ShadowGenerator;
 import xfacthd.oretexgen.client.util.Utils;
 
 import java.io.IOException;
@@ -93,11 +93,11 @@ public final class OreTextureLoader implements ITextureAtlasSpriteLoader
         background = Utils.scaleImage(background, bgScale);
         image = Utils.scaleImage(image, fgScale);
 
-        return buildCombinedTexture(name, resultSize, image, background, meta.shouldGenerateShadow(), animation, forgeMeta);
+        return buildCombinedTexture(name, resultSize, image, background, meta.getShadowMetadata(), animation, forgeMeta);
     }
 
     private static SpriteContents buildCombinedTexture(
-            ResourceLocation name, FrameSize resultSize, NativeImage image, NativeImage background, boolean genShadow, AnimationMetadataSection animation, ForgeTextureMetadata forgeMeta
+            ResourceLocation name, FrameSize resultSize, NativeImage image, NativeImage background, @Nullable OreMetadata.ShadowMetadata shadowMetadata, AnimationMetadataSection animation, ForgeTextureMetadata forgeMeta
     )
     {
         NativeImage resultImage = new NativeImage(image.format(), image.getWidth(), image.getHeight(), false);
@@ -107,72 +107,19 @@ public final class OreTextureLoader implements ITextureAtlasSpriteLoader
             int fy = frame.y();
 
             background.copyRect(resultImage, 0, 0, fx, fy, resultSize.width(), resultSize.height(), false, false);
-            Utils.copyRect(image, resultImage, fx, fy, fx, fy, resultSize.width(), resultSize.height());
 
-            if (genShadow)
+            if (shadowMetadata != null)
             {
-                generateShadow(resultImage, image, frame, resultSize);
+                ShadowGenerator.generateShadow(resultImage, image, background, frame, resultSize, shadowMetadata);
             }
+
+            Utils.copyRect(image, resultImage, fx, fy, fx, fy, resultSize.width(), resultSize.height());
         });
 
         background.close();
         image.close();
 
         return new SpriteContents(name, resultSize, resultImage, animation, forgeMeta);
-    }
-
-    private static void generateShadow(NativeImage resultImage, NativeImage foreground, FrameInfo frame, FrameSize size)
-    {
-        byte[][] mask = new byte[size.height()][size.width()];
-
-        int w = size.width();
-        int h = size.height();
-        for (int y = 0; y < h; y++)
-        {
-            int py = frame.y() + y;
-            for (int x = 0; x < w; x++)
-            {
-                int px = frame.x() + x;
-                int c = FastColor.ARGB32.alpha(foreground.getPixelRGBA(px, py));
-                int cnx = x == 0 ? c : FastColor.ARGB32.alpha(foreground.getPixelRGBA(px - 1, py));
-                int cpx = (x + 1) >= w ? c : FastColor.ARGB32.alpha(foreground.getPixelRGBA(px + 1, py));
-                int cny = y == 0 ? c : FastColor.ARGB32.alpha(foreground.getPixelRGBA(px, py - 1));
-                int cpy = (y + 1) >= h ? c : FastColor.ARGB32.alpha(foreground.getPixelRGBA(px, py + 1));
-                if (cnx < c)
-                {
-                    mask[y][x - 1] = -1;
-                    mask[y][x] = 1;
-                }
-                if (cpx < c)
-                {
-                    mask[y][x + 1] = -1;
-                    mask[y][x] = 1;
-                }
-                if (cny < c)
-                {
-                    mask[y - 1][x] = -1;
-                    mask[y][x] = 1;
-                }
-                if (cpy < c)
-                {
-                    mask[y + 1][x] = -1;
-                    mask[y][x] = 1;
-                }
-            }
-        }
-
-        for (int y = 0; y < h; y++)
-        {
-            int py = frame.y() + y;
-            for (int x = 0; x < w; x++)
-            {
-                int px = frame.x() + x;
-                if (mask[y][x] == -1)
-                {
-                    resultImage.blendPixel(px, py, 0x33444444);
-                }
-            }
-        }
     }
 
     private static SpriteContents fallback(
