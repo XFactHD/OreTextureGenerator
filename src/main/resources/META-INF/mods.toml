@@ -1,11 +1,11 @@
 modLoader="javafml"
-loaderVersion="[45,)"
+loaderVersion="${loader_version_range}"
 license="LGPL v3"
 issueTrackerURL="https://github.com/XFactHD/OreTexGen/"
 
 [[mods]]
 	modId="oretexgen"
-	version="${file.jarVersion}"
+	version="${mod_version}"
 	displayName="OreTexGen"
 	#displayURL="https://www.curseforge.com/minecraft/mc-mods/oretexgen"
 	logoFile="logo.png"
@@ -17,13 +17,13 @@ issueTrackerURL="https://github.com/XFactHD/OreTexGen/"
 [[dependencies.oretexgen]]
     modId="forge"
     mandatory=true
-    versionRange="[45,)"
+    versionRange="${forge_version_range}"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.oretexgen]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.19.4,1.20)"
+    versionRange="${mc_version_range}"
     ordering="NONE"
     side="BOTH"
