@@ -13,6 +13,10 @@ public final class OTGClient
     @SubscribeEvent
     public static void onRegisterTextureLoader(final RegisterTextureAtlasSpriteLoadersEvent event)
     {
-        event.register("loader", new OreTextureLoader());
+        event.register(OreTextureLoader.NAME.getPath(), new OreTextureLoader());
     }
+
+
+
+    private OTGClient() { }
 }

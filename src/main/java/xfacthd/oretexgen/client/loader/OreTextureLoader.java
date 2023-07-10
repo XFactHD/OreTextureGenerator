@@ -21,6 +21,8 @@ import java.io.InputStream;
 
 public final class OreTextureLoader implements ITextureAtlasSpriteLoader
 {
+    public static final ResourceLocation NAME = new ResourceLocation(OreTextureGenerator.MODID, "loader");
+
     @Override
     public SpriteContents loadContents(
             ResourceLocation name, Resource resource, FrameSize size, NativeImage image, AnimationMetadataSection animation, ForgeTextureMetadata forgeMeta

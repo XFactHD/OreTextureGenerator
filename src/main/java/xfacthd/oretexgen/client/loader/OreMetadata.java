@@ -3,7 +3,7 @@ package xfacthd.oretexgen.client.loader;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.Resource;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.oretexgen.OreTextureGenerator;
@@ -14,7 +14,8 @@ public final class OreMetadata
 {
     private static final String DEFAULT_BACKGROUND = "minecraft:block/stone";
     private static final OreMetadata DEFAULT = new OreMetadata(DEFAULT_BACKGROUND, null);
-    private static final Serializer SERIALIZER = new Serializer();
+    private static final ShadowMetadata DEFAULT_SHADOW = ShadowMetadata.fromJson(new JsonObject());
+    public static final OreMetadataSectionType TYPE = new OreMetadataSectionType();
 
     private final ResourceLocation background;
 
@@ -42,7 +43,7 @@ public final class OreMetadata
 
     public static OreMetadata fromResource(Resource resource) throws IOException
     {
-        return resource.metadata().getSection(SERIALIZER).orElse(DEFAULT);
+        return resource.metadata().getSection(TYPE).orElse(DEFAULT);
     }
 
     /**
@@ -78,9 +79,19 @@ public final class OreMetadata
             }
             return new ShadowMetadata(paletteExpansion, highlightStrength, shadowStrength, uniformity);
         }
+
+        public JsonObject toJson()
+        {
+            JsonObject json = new JsonObject();
+            json.addProperty("palette_expansion", paletteExpansion);
+            json.addProperty("highlight_strength", highlightStrength);
+            json.addProperty("shadow_strength", shadowStrength);
+            json.addProperty("uniformity", uniformity);
+            return json;
+        }
     }
 
-    private static class Serializer implements MetadataSectionSerializer<OreMetadata>
+    private static class OreMetadataSectionType implements MetadataSectionType<OreMetadata>
     {
         @Override
         public String getMetadataSectionName()
@@ -110,6 +121,25 @@ public final class OreMetadata
                 }
             }
             return new OreMetadata(background, shadow);
+        }
+
+        @Override
+        public JsonObject toJson(OreMetadata data)
+        {
+            JsonObject json = new JsonObject();
+            json.addProperty("background", data.background.toString());
+            if (data.shadowMetadata != null)
+            {
+                if (data.shadowMetadata.equals(DEFAULT_SHADOW))
+                {
+                    json.addProperty("shadow", true);
+                }
+                else
+                {
+                    json.add("shadow", data.shadowMetadata.toJson());
+                }
+            }
+            return json;
         }
     }
 }
