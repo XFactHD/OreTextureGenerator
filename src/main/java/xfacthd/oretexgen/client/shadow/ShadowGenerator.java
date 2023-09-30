@@ -3,7 +3,7 @@ package xfacthd.oretexgen.client.shadow;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.util.FastColor;
-import xfacthd.oretexgen.client.loader.OreMetadata;
+import xfacthd.oretexgen.client.loader.ShadowMetadata;
 import xfacthd.oretexgen.client.util.FrameInfo;
 
 public final class ShadowGenerator
@@ -26,7 +26,7 @@ public final class ShadowGenerator
         return FastColor.ARGB32.alpha(image.getPixelRGBA(px, py)) >= 128;
     }
 
-    public static void generateShadow(NativeImage outputImage, NativeImage foreground, NativeImage background, FrameInfo frame, FrameSize size, OreMetadata.ShadowMetadata shadowMetadata)
+    public static void generateShadow(NativeImage outputImage, NativeImage foreground, NativeImage background, FrameInfo frame, FrameSize size, ShadowMetadata shadowMetadata)
     {
         Palette palette = new Palette(background, shadowMetadata.paletteExpansion());
 

@@ -1,10 +1,4 @@
 {
-    "forge": {
-        "loader": "oretexgen:loader"
-    },
-    "oretexgen": {
-        "background": "minecraft:block/stone"
-    },
     "animation": {
         "interpolate": true,
         "frametime": 20

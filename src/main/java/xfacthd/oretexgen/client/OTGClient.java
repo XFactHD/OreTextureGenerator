@@ -1,19 +1,19 @@
 package xfacthd.oretexgen.client;
 
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterTextureAtlasSpriteLoadersEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import xfacthd.oretexgen.OreTextureGenerator;
-import xfacthd.oretexgen.client.loader.OreTextureLoader;
+import xfacthd.oretexgen.client.loader.OreTextureSource;
 
 @Mod.EventBusSubscriber(modid = OreTextureGenerator.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class OTGClient
 {
     @SubscribeEvent
-    public static void onRegisterTextureLoader(final RegisterTextureAtlasSpriteLoadersEvent event)
+    public static void onRegisterReloadListeners(final RegisterClientReloadListenersEvent event)
     {
-        event.register(OreTextureLoader.NAME.getPath(), new OreTextureLoader());
+        OreTextureSource.register();
     }
 
 

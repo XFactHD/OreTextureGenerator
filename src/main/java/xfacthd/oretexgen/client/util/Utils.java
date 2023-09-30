@@ -1,12 +1,13 @@
 package xfacthd.oretexgen.client.util;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.util.FastColor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public final class Utils
 {
@@ -71,6 +72,19 @@ public final class Utils
                 }
             }
         }
+    }
+
+    public static <T> MapCodec<T> optionalFieldCodecOf(Codec<T> elementCodec, String key, T defaultValue)
+    {
+        return optionalFieldCodecOf(elementCodec, key).xmap(
+                opt -> opt.orElse(defaultValue),
+                val -> Objects.equals(val, defaultValue) ? Optional.empty() : Optional.of(val)
+        );
+    }
+
+    public static <T> MapCodec<Optional<T>> optionalFieldCodecOf(Codec<T> elementCodec, String key)
+    {
+        return new BetterOptionalFieldCodec<>(key, elementCodec);
     }
 
 

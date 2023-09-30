@@ -25,5 +25,5 @@ issueTrackerURL="https://github.com/XFactHD/OreTexGen/"
     modId="minecraft"
     mandatory=true
     versionRange="${mc_version_range}"
-    ordering="NONE"
+    ordering="AFTER"
     side="BOTH"

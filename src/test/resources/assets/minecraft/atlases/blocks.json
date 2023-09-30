@@ -1,0 +1,29 @@
+{
+    "sources": [
+        {
+            "type": "oretexgen:ore_generator",
+            "ore": "minecraft:block/coal_ore",
+            "background": "minecraft:block/stone",
+            "shadow": true
+        },
+        {
+            "type": "oretexgen:ore_generator",
+            "ore": "minecraft:block/copper_ore",
+            "background": "minecraft:block/blackstone",
+            "shadow": true
+        },
+        {
+            "type": "oretexgen:ore_generator",
+            "ore": "minecraft:block/diamond_ore",
+            "background": "minecraft:block/granite",
+            "shadow": {
+                "palette_expansion": 0,
+                "shadow_strength": 64
+            }
+        },
+        {
+            "type": "oretexgen:ore_generator",
+            "ore": "minecraft:block/redstone_ore"
+        }
+    ]
+}
