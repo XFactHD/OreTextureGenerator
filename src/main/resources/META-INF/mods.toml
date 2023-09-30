@@ -27,3 +27,10 @@ issueTrackerURL="https://github.com/XFactHD/OreTexGen/"
     versionRange="${mc_version_range}"
     ordering="AFTER"
     side="BOTH"
+
+[[dependencies.oretexgen]]
+    modId="atlasviewer"
+    mandatory=false
+    versionRange="[5.1.1,)"
+    ordering="NONE"
+    side="BOTH"

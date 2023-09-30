@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.oretexgen.OreTextureGenerator;
 import xfacthd.oretexgen.client.shadow.ShadowGenerator;
@@ -22,8 +23,9 @@ import xfacthd.oretexgen.client.util.Utils;
 
 import java.util.Optional;
 
-public record OreTextureSource(ResourceLocation ore, ResourceLocation background, ShadowMetadata shadow) implements SpriteSource
+public sealed class OreTextureSource implements SpriteSource permits OreTextureSourceAV
 {
+    private static final boolean AV_LOADED = ModList.get().isLoaded("atlasviewer");
     private static final ResourceLocation DEFAULT_BACKGROUND = new ResourceLocation("minecraft:block/stone");
     private static SpriteSourceType TYPE = null;
     private static final Codec<OreTextureSource> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -36,7 +38,18 @@ public record OreTextureSource(ResourceLocation ore, ResourceLocation background
                     oe -> oe.flatMap(e -> e.left().map(b -> b ? ShadowMetadata.DEFAULT : null).or(e::right)),
                     os -> os.map(s -> s.equals(ShadowMetadata.DEFAULT) ? Either.left(true) : Either.right(s))
             ).forGetter(s -> Optional.ofNullable(s.shadow))
-    ).apply(inst, (ore, bg, shadow) -> new OreTextureSource(ore, bg, shadow.orElse(null))));
+    ).apply(inst, (ore, bg, shadow) -> OreTextureSource.create(ore, bg, shadow.orElse(null))));
+
+    final ResourceLocation ore;
+    final ResourceLocation background;
+    final ShadowMetadata shadow;
+
+    public OreTextureSource(ResourceLocation ore, ResourceLocation background, ShadowMetadata shadow)
+    {
+        this.ore = ore;
+        this.background = background;
+        this.shadow = shadow;
+    }
 
     @Override
     public void run(ResourceManager manager, Output output)
@@ -61,7 +74,14 @@ public record OreTextureSource(ResourceLocation ore, ResourceLocation background
         Resource bgResource = optBg.get();
         LazyLoadedImage lazyOre = new LazyLoadedImage(orePath, oreResource, 1);
         LazyLoadedImage lazyBg = new LazyLoadedImage(bgPath, bgResource, 1);
-        output.add(ore, new OreTextureSupplier(oreResource, lazyOre, bgPath, bgResource, lazyBg, shadow, ore));
+        output.add(ore, createSupplier(oreResource, lazyOre, bgResource, lazyBg));
+    }
+
+    OreTextureSupplier createSupplier(
+            Resource oreResource, LazyLoadedImage lazyOre, Resource bgResource, LazyLoadedImage lazyBg
+    )
+    {
+        return new OreTextureSupplier(oreResource, lazyOre, background, bgResource, lazyBg, shadow, ore);
     }
 
     @Override
@@ -70,18 +90,46 @@ public record OreTextureSource(ResourceLocation ore, ResourceLocation background
         return Preconditions.checkNotNull(TYPE, "SpriteSourceType not registered");
     }
 
-
-
-    private record OreTextureSupplier(
-            Resource oreResource,
-            LazyLoadedImage lazyOre,
-            ResourceLocation backgroundPath,
-            Resource backgroundResource,
-            LazyLoadedImage lazyBackground,
-            ShadowMetadata shadow,
-            ResourceLocation outLoc
-    ) implements SpriteSupplier
+    private static OreTextureSource create(ResourceLocation ore, ResourceLocation background, ShadowMetadata shadow)
     {
+        if (AV_LOADED)
+        {
+            return new OreTextureSourceAV(ore, background, shadow);
+        }
+        return new OreTextureSource(ore, background, shadow);
+    }
+
+
+
+    static sealed class OreTextureSupplier implements SpriteSupplier permits OreTextureSourceAV.OreTextureSupplierAV
+    {
+        final Resource oreResource;
+        private final LazyLoadedImage lazyOre;
+        private final ResourceLocation background;
+        private final Resource backgroundResource;
+        private final LazyLoadedImage lazyBackground;
+        private final ShadowMetadata shadow;
+        private final ResourceLocation outLoc;
+
+        OreTextureSupplier(
+                Resource oreResource,
+                LazyLoadedImage lazyOre,
+                ResourceLocation background,
+                Resource backgroundResource,
+                LazyLoadedImage lazyBackground,
+                ShadowMetadata shadow,
+                ResourceLocation outLoc
+        )
+        {
+            this.oreResource = oreResource;
+            this.lazyOre = lazyOre;
+            this.background = background;
+            this.backgroundResource = backgroundResource;
+            this.lazyBackground = lazyBackground;
+            this.shadow = shadow;
+            this.outLoc = outLoc;
+        }
+
         @Override
         public SpriteContents get()
         {
@@ -93,7 +141,7 @@ public record OreTextureSource(ResourceLocation ore, ResourceLocation background
                 if (bgAnim != AnimationMetadataSection.EMPTY)
                 {
                     throw new IllegalArgumentException(
-                            "Ore background texture must not be animated but '" + backgroundPath + "' specifies an animation"
+                            "Ore background texture must not be animated but '" + background + "' specifies an animation"
                     );
                 }
 
@@ -121,7 +169,7 @@ public record OreTextureSource(ResourceLocation ore, ResourceLocation background
                 int fgScale = bgWidth > fgWidth ? (bgWidth / fgWidth) : 1;
                 background = Utils.scaleImage(background, bgScale);
                 image = Utils.scaleImage(image, fgScale);
-                return buildCombinedTexture(outLoc, resultSize, image, background, shadow, oreAnim);
+                return postProcess(buildCombinedTexture(outLoc, resultSize, image, background, shadow, oreAnim));
             }
             catch (Exception e)
             {
@@ -133,6 +181,11 @@ public record OreTextureSource(ResourceLocation ore, ResourceLocation background
                 lazyBackground.release();
             }
             return MissingTextureAtlasSprite.create();
+        }
+
+        SpriteContents postProcess(SpriteContents contents)
+        {
+            return contents;
         }
 
         @Override
