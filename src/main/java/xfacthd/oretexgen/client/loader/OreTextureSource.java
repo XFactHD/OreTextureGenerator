@@ -28,6 +28,8 @@ public sealed class OreTextureSource implements SpriteSource permits OreTextureS
     private static final boolean AV_LOADED = ModList.get().isLoaded("atlasviewer");
     private static final ResourceLocation DEFAULT_BACKGROUND = new ResourceLocation("minecraft:block/stone");
     private static SpriteSourceType TYPE = null;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private static final Optional<ShadowMetadata> OPT_DEFAULT_SHADOW = Optional.of(ShadowMetadata.DEFAULT);
     private static final Codec<OreTextureSource> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("ore").forGetter(s -> s.ore),
             Utils.optionalFieldCodecOf(ResourceLocation.CODEC, "background", DEFAULT_BACKGROUND).forGetter(s -> s.background),
@@ -35,7 +37,7 @@ public sealed class OreTextureSource implements SpriteSource permits OreTextureS
                     new ExtraCodecs.EitherCodec<>(Codec.BOOL, ShadowMetadata.CODEC),
                     "shadow"
             ).xmap(
-                    oe -> oe.flatMap(e -> e.left().map(b -> b ? ShadowMetadata.DEFAULT : null).or(e::right)),
+                    oe -> oe.flatMap(e -> e.map(b -> b ? OPT_DEFAULT_SHADOW : Optional.empty(), Optional::of)),
                     os -> os.map(s -> s.equals(ShadowMetadata.DEFAULT) ? Either.left(true) : Either.right(s))
             ).forGetter(s -> Optional.ofNullable(s.shadow))
     ).apply(inst, (ore, bg, shadow) -> OreTextureSource.create(ore, bg, shadow.orElse(null))));
